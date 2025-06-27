@@ -1,8 +1,34 @@
 "use client";
 
 import Link from "next/link";
+import React, { useEffect, useState } from "react";
+import {
+  ShoppingCartIcon,
+  Bars3Icon,
+  XMarkIcon,
+} from "@heroicons/react/24/outline";
+import { useCartStore } from "@/store/cart-store";
+import { Button } from "@/src/components/ui/button";
 
 export const Navbar = () => {
+  const [mobileOpen, setMobileOpen] = useState<boolean>(false);
+  const { items } = useCartStore();
+  const cartCount = items.reduce((total, item) => total + item.quantity, 0);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768) {
+        setMobileOpen(false);
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
   return (
     <nav className="sticky top-0 z-50 bg-white shadow">
       <div className="container mx-auto flex items-center justify-between px-4 py-4">
@@ -18,10 +44,22 @@ export const Navbar = () => {
             Checkout
           </Link>
         </div>
-        <div className="flex items-center space-x-4"></div>
+        <div className="flex items-center space-x-4">
+          <Link href="/checkout">
+            <ShoppingCartIcon />
+            {cartCount > 0 && <span>{cartCount}</span>}
+          </Link>
+          <Button variant="ghost" onClick={() => setMobileOpen(!mobileOpen)}>
+            {mobileOpen ? (
+              <XMarkIcon className="h-6 w-6" />
+            ) : (
+              <Bars3Icon className="h-6 w-6" />
+            )}
+          </Button>
+        </div>
       </div>
-
-      <nav className="md:hidden bg-white shadow-md">
+      {/* Mobile Navigation */}
+      {/* <nav className="md:hidden bg-white shadow-md">
         <ul className="flex flex-col p-4 space-y-2">
           <li>
             <Link href="/" className="block hover:text-blue-600">
@@ -37,9 +75,10 @@ export const Navbar = () => {
             <Link href="/checkout" className="block hover:text-blue-600">
               Checkout
             </Link>
+           
           </li>
         </ul>
-      </nav>
+      </nav> */}
     </nav>
   );
 };
